@@ -11,7 +11,7 @@ var factory = new ConnectionFactory { HostName = "localhost" };
 using var connection = await factory.CreateConnectionAsync();
 using var channel = await connection.CreateChannelAsync();
 
-await channel.QueueDeclareAsync(queue: RoutingConstants.RoutingKey, durable: false, exclusive: false, autoDelete: false,
+await channel.QueueDeclareAsync(queue: RoutingConstants.OrderCreated, durable: false, exclusive: false, autoDelete: false,
     arguments: null);
 
 
@@ -50,7 +50,7 @@ for (; ; )
 
     await channel.BasicPublishAsync(
         exchange: string.Empty,
-    routingKey: RoutingConstants.RoutingKey,
+    routingKey: RoutingConstants.OrderCreated,
     mandatory: false,
     basicProperties: props,
     body: body
