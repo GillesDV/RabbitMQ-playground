@@ -6,13 +6,16 @@ using System.Threading.Tasks;
 
 namespace OrderProcessor.Models
 {
-    public class OrderCreated
+    public record OrderCreated
     {
         public Guid OrderId { get; set; }
         public string ProductName { get; set; }
-        public int Quality { get; set; }
+        public int Quantity { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
-
-
+        
+        public override string ToString()
+        {
+            return $"OrderCreated: OrderId={OrderId}, ProductName={ProductName}, Quantity={Quantity}, CreatedAt={CreatedAt}";
+        }
     }
 }
