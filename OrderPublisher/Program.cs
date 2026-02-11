@@ -11,9 +11,6 @@ var factory = new ConnectionFactory { HostName = "localhost" };
 using var connection = await factory.CreateConnectionAsync();
 using var channel = await connection.CreateChannelAsync();
 
-await channel.QueueDeclareAsync(queue: RoutingConstants.OrderCreated, durable: false, exclusive: false, autoDelete: false,
-    arguments: null);
-
 
 //infinite loop, will run until the user types "exit"
 for (; ; )
@@ -50,7 +47,7 @@ for (; ; )
 
     await channel.BasicPublishAsync(
         exchange: string.Empty,
-    routingKey: RoutingConstants.OrderCreated,
+    routingKey: RoutingConstants.RoutingKeys.OrderCreated,
     mandatory: false,
     basicProperties: props,
     body: body

@@ -8,8 +8,9 @@ namespace OrderPublisher.RabbitMQ
 {
     public static class RoutingConstants
     {
-        public const string ExchangeName = "order_exchange";
-        public const string OrderCreated = "order.created";
-
+        public static class RoutingKeys
+        {
+            public const string OrderCreated = "order.created";
+        }
     }
 }

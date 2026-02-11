@@ -8,9 +8,21 @@ namespace OrderProcessor.RabbitMQ
 {
     public static class RoutingConstants
     {
-        public const string ExchangeName = "order_exchange";
-        public const string OrderCreated = "order.created";
-        public const string OrderCreatedDlq = "order.created.dlq";
+
+        public static class Exchanges
+        {
+            public const string OrderDeadLetter = "dlx.order";
+        }
+
+        public static class Queues
+        {
+            public const string OrderCreatedDlq = "order.created.dlq";
+        }
+
+        public static class RoutingKeys
+        {
+            public const string OrderCreated = "order.created";
+        }
 
     }
 }

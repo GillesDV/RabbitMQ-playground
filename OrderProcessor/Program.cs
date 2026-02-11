@@ -9,13 +9,8 @@ var factory = new ConnectionFactory { HostName = "localhost" };
 using var connection = await factory.CreateConnectionAsync();
 using var channel = await connection.CreateChannelAsync();
 
-await channel.QueueDeclareAsync(
-      queue: RoutingConstants.OrderCreated,
-      durable: false,
-      exclusive: false,
-      autoDelete: false,
-      arguments: null
-  );
+// Normally this would be done in a setup script or IaC, but for a small demo it's done here, once.
+await SetupExchangeAndQueues(channel);
 
 Console.WriteLine(" [*] Waiting for messages.");
 
@@ -49,10 +44,27 @@ consumer.ReceivedAsync += async (sender, ea) =>
 };
 
 await channel.BasicConsumeAsync(
-    queue: RoutingConstants.OrderCreated,
+    queue: RoutingConstants.RoutingKeys.OrderCreated,
     autoAck: false, // do not double acknowledge. That causes errors
     consumer: consumer
 );
 
 Console.WriteLine(" Press [enter] to exit.");
 Console.ReadLine();
+
+static async Task SetupExchangeAndQueues(IChannel channel)
+{
+    await channel.ExchangeDeclareAsync(RoutingConstants.Exchanges.OrderDeadLetter, ExchangeType.Direct, durable: false);
+
+    await channel.QueueDeclareAsync(RoutingConstants.Queues.OrderCreatedDlq, durable: false, exclusive: false, autoDelete: false);
+
+    await channel.QueueBindAsync(RoutingConstants.Queues.OrderCreatedDlq, RoutingConstants.Exchanges.OrderDeadLetter, routingKey: RoutingConstants.RoutingKeys.OrderCreated);
+
+    var mainArgs = new Dictionary<string, object>
+    {
+        ["x-dead-letter-exchange"] = RoutingConstants.Exchanges.OrderDeadLetter,
+        ["x-dead-letter-routing-key"] = RoutingConstants.RoutingKeys.OrderCreated
+    };
+
+    await channel.QueueDeclareAsync(RoutingConstants.RoutingKeys.OrderCreated, durable: false, exclusive: false, autoDelete: false, arguments: mainArgs);
+}
