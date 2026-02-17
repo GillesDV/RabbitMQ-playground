@@ -2,6 +2,7 @@
 using OrderProcessor.RabbitMQ;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using System.Collections;
 using System.Text;
 using System.Text.Json;
 
@@ -44,7 +45,7 @@ consumer.ReceivedAsync += async (sender, ea) =>
 };
 
 await channel.BasicConsumeAsync(
-    queue: RoutingConstants.RoutingKeys.OrderCreated,
+    queue: RoutingConstants.Queues.OrderCreatedWorker,
     autoAck: false, // do not double acknowledge. That causes errors
     consumer: consumer
 );
@@ -54,17 +55,25 @@ Console.ReadLine();
 
 static async Task SetupExchangeAndQueues(IChannel channel)
 {
-    await channel.ExchangeDeclareAsync(RoutingConstants.Exchanges.OrderDeadLetter, ExchangeType.Direct, durable: false);
+    await channel.ExchangeDeclareAsync(RoutingConstants.Exchanges.OrdersEvents, ExchangeType.Fanout, durable: false);
+    await channel.QueueDeclareAsync(RoutingConstants.Queues.OrderCreatedWorker, durable: false, exclusive: false, autoDelete: false);
 
-    await channel.QueueDeclareAsync(RoutingConstants.Queues.OrderCreatedDlq, durable: false, exclusive: false, autoDelete: false);
+    await channel.QueueBindAsync(
+        queue: RoutingConstants.Queues.OrderCreatedWorker,
+        exchange: RoutingConstants.Exchanges.OrdersEvents,
+        routingKey: "");
 
-    await channel.QueueBindAsync(RoutingConstants.Queues.OrderCreatedDlq, RoutingConstants.Exchanges.OrderDeadLetter, routingKey: RoutingConstants.RoutingKeys.OrderCreated);
+    //TODO re-introduce DLQ
 
-    var mainArgs = new Dictionary<string, object>
-    {
-        ["x-dead-letter-exchange"] = RoutingConstants.Exchanges.OrderDeadLetter,
-        ["x-dead-letter-routing-key"] = RoutingConstants.RoutingKeys.OrderCreated
-    };
+    //await channel.ExchangeDeclareAsync(RoutingConstants.Exchanges.OrderDeadLetter, ExchangeType.Direct, durable: false);
+    //await channel.QueueDeclareAsync(RoutingConstants.Queues.OrderCreatedDlq, durable: false, exclusive: false, autoDelete: false);
+    //await channel.QueueBindAsync(RoutingConstants.Queues.OrderCreatedDlq, RoutingConstants.Exchanges.OrderDeadLetter, routingKey: RoutingConstants.RoutingKeys.OrderCreated);
 
-    await channel.QueueDeclareAsync(RoutingConstants.RoutingKeys.OrderCreated, durable: false, exclusive: false, autoDelete: false, arguments: mainArgs);
+    //var mainArgs = new Dictionary<string, object>
+    //{
+    //    ["x-dead-letter-exchange"] = RoutingConstants.Exchanges.OrderDeadLetter,
+    //    ["x-dead-letter-routing-key"] = RoutingConstants.RoutingKeys.OrderCreated
+    //};
+
+    //await channel.QueueDeclareAsync(RoutingConstants.RoutingKeys.OrderCreated, durable: false, exclusive: false, autoDelete: false, arguments: mainArgs);
 }

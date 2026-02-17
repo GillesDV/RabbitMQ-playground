@@ -45,9 +45,14 @@ for (; ; )
         Type = nameof(OrderCreated)
     };
 
+    await channel.ExchangeDeclareAsync(
+    exchange: RoutingConstants.Exchanges.OrdersEvents,
+    type: ExchangeType.Fanout,
+    durable: false);
+
     await channel.BasicPublishAsync(
-        exchange: string.Empty,
-    routingKey: RoutingConstants.RoutingKeys.OrderCreated,
+        exchange: RoutingConstants.Exchanges.OrdersEvents,
+    routingKey: string.Empty, // ignored for Fanout exchange
     mandatory: false,
     basicProperties: props,
     body: body
