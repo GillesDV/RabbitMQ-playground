@@ -1,5 +1,5 @@
-﻿using OrderPublisher.Helpers;
-using OrderPublisher.Models;
+﻿using Domain.Models;
+using OrderPublisher.Helpers;
 using OrderPublisher.RabbitMQ;
 using RabbitMQ.Client;
 using System.Text;
@@ -33,7 +33,7 @@ for (; ; )
         continue;
     }
 
-    var newOrder = new OrderCreated(Guid.NewGuid(), "Sample Product", int.Parse(input), DateTimeOffset.UtcNow);
+    var newOrder = new OrderCreatedEvent(Guid.NewGuid(), "Sample Product", int.Parse(input), DateTimeOffset.UtcNow);
 
     var json = JsonSerializer.Serialize(newOrder);
     var body = Encoding.UTF8.GetBytes(json);
@@ -42,7 +42,7 @@ for (; ; )
     {
         ContentType = "application/json",
         DeliveryMode = DeliveryModes.Persistent,
-        Type = nameof(OrderCreated)
+        Type = nameof(OrderCreatedEvent)
     };
 
     await channel.ExchangeDeclareAsync(

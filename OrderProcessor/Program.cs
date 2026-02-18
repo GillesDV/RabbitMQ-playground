@@ -1,4 +1,4 @@
-﻿using OrderProcessor.Models;
+﻿using Domain.Models;
 using OrderProcessor.RabbitMQ;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -20,7 +20,7 @@ var consumer = new AsyncEventingBasicConsumer(channel);
 consumer.ReceivedAsync += async (sender, ea) =>
 {
     var json = Encoding.UTF8.GetString(ea.Body.Span);
-    var poco = JsonSerializer.Deserialize<OrderCreated>(json)!;
+    var poco = JsonSerializer.Deserialize<OrderCreatedEvent>(json)!;
 
     if (poco.Quantity <= 0)
     {

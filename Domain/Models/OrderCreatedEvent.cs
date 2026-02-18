@@ -4,16 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OrderPublisher.Models
+namespace Domain.Models
 {
-    public record OrderCreated
+    public record OrderCreatedEvent
     {
         public Guid OrderId { get; set; }
         public string ProductName { get; set; }
         public int Quantity { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
 
-        public OrderCreated(Guid orderId, string productName, int quantity, DateTimeOffset createdAt)
+        public OrderCreatedEvent(Guid orderId, string productName, int quantity, DateTimeOffset createdAt)
         {
             OrderId = orderId;
             ProductName = productName;
