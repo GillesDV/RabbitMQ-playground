@@ -11,7 +11,7 @@ namespace OrderProcessor.RabbitMQ
 
         public static class Exchanges
         {
-            public const string OrderDeadLetter = "dlx.order";
+            public const string OrderEventsDlx = "dlx.order.events";
             public const string OrdersEvents = "orders.events";
 
         }
@@ -24,7 +24,7 @@ namespace OrderProcessor.RabbitMQ
 
         public static class RoutingKeys
         {
-            public const string OrderCreated = "order.created";
+            public const string OrdersDead = "orders.dead";
         }
 
     }

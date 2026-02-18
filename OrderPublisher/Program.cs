@@ -48,7 +48,7 @@ for (; ; )
     await channel.ExchangeDeclareAsync(
     exchange: RoutingConstants.Exchanges.OrdersEvents,
     type: ExchangeType.Fanout,
-    durable: false);
+    durable: true);
 
     await channel.BasicPublishAsync(
         exchange: RoutingConstants.Exchanges.OrdersEvents,

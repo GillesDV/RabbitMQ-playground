@@ -36,13 +36,14 @@ Console.ReadLine();
 
 static async Task SetupExchangeAndQueues(IChannel channel)
 {
-    await channel.ExchangeDeclareAsync(RoutingConstants.Exchanges.OrdersEvents, ExchangeType.Fanout, durable: false);
+    await channel.ExchangeDeclareAsync(RoutingConstants.Exchanges.OrdersEvents, ExchangeType.Fanout, durable: true);
 
-    await channel.QueueDeclareAsync(RoutingConstants.Queues.OrderCreatedListener, durable: false, exclusive: false, autoDelete: false);
+    await channel.QueueDeclareAsync(RoutingConstants.Queues.OrderCreatedListener, durable: true, exclusive: false, autoDelete: false);
 
     await channel.QueueBindAsync(
         queue: RoutingConstants.Queues.OrderCreatedListener,
         exchange: RoutingConstants.Exchanges.OrdersEvents,
         routingKey: "");
 
+    // Currently does not have a DLQ, but it could be added in the same way as the OrderProcessor, if needed.
 }

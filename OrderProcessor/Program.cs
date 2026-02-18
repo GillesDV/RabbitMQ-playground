@@ -55,25 +55,26 @@ Console.ReadLine();
 
 static async Task SetupExchangeAndQueues(IChannel channel)
 {
-    await channel.ExchangeDeclareAsync(RoutingConstants.Exchanges.OrdersEvents, ExchangeType.Fanout, durable: false);
-    await channel.QueueDeclareAsync(RoutingConstants.Queues.OrderCreatedWorker, durable: false, exclusive: false, autoDelete: false);
+    // Create DLQ exchange & queue
+
+    await channel.ExchangeDeclareAsync(RoutingConstants.Exchanges.OrderEventsDlx, ExchangeType.Direct, durable: true);
+    await channel.QueueDeclareAsync(RoutingConstants.Queues.OrderCreatedDlq, durable: true, exclusive: false, autoDelete: false);
+    await channel.QueueBindAsync(RoutingConstants.Queues.OrderCreatedDlq, RoutingConstants.Exchanges.OrderEventsDlx, 
+        routingKey: RoutingConstants.RoutingKeys.OrdersDead);
+
+    var dlqArgs = new Dictionary<string, object>
+    {
+        ["x-dead-letter-exchange"] = RoutingConstants.Exchanges.OrderEventsDlx,
+        ["x-dead-letter-routing-key"] = RoutingConstants.RoutingKeys.OrdersDead
+    };
+        
+    // Create main exchange & queue, with DLQ args
+
+    await channel.ExchangeDeclareAsync(RoutingConstants.Exchanges.OrdersEvents, ExchangeType.Fanout, durable: true);
+    await channel.QueueDeclareAsync(RoutingConstants.Queues.OrderCreatedWorker, durable: true, exclusive: false, autoDelete: false, arguments: dlqArgs);
 
     await channel.QueueBindAsync(
         queue: RoutingConstants.Queues.OrderCreatedWorker,
         exchange: RoutingConstants.Exchanges.OrdersEvents,
         routingKey: "");
-
-    //TODO re-introduce DLQ
-
-    //await channel.ExchangeDeclareAsync(RoutingConstants.Exchanges.OrderDeadLetter, ExchangeType.Direct, durable: false);
-    //await channel.QueueDeclareAsync(RoutingConstants.Queues.OrderCreatedDlq, durable: false, exclusive: false, autoDelete: false);
-    //await channel.QueueBindAsync(RoutingConstants.Queues.OrderCreatedDlq, RoutingConstants.Exchanges.OrderDeadLetter, routingKey: RoutingConstants.RoutingKeys.OrderCreated);
-
-    //var mainArgs = new Dictionary<string, object>
-    //{
-    //    ["x-dead-letter-exchange"] = RoutingConstants.Exchanges.OrderDeadLetter,
-    //    ["x-dead-letter-routing-key"] = RoutingConstants.RoutingKeys.OrderCreated
-    //};
-
-    //await channel.QueueDeclareAsync(RoutingConstants.RoutingKeys.OrderCreated, durable: false, exclusive: false, autoDelete: false, arguments: mainArgs);
 }
