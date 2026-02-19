@@ -8,11 +8,14 @@ namespace OrderProcessor.RabbitMQ
 {
     public static class RoutingConstants
     {
+        public const int DelayOrderCreatedRetryMiliseconds = 3_000;
 
         public static class Exchanges
         {
             public const string OrderEventsDlx = "dlx.order.events";
             public const string OrdersEvents = "orders.events";
+            public const string OrdersCreatedRetry = "orders.created.retry";
+
 
         }
 
@@ -25,6 +28,7 @@ namespace OrderProcessor.RabbitMQ
         public static class RoutingKeys
         {
             public const string OrdersDead = "orders.dead";
+            public const string OrdersCreatedRetry = "orders.created.retry.3s";
         }
 
     }

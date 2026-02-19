@@ -12,6 +12,7 @@ namespace Domain.Models
         public string ProductName { get; set; }
         public int Quantity { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
+        public int AttemptInQueue { get; set; } = 1;
 
         public OrderCreatedEvent(Guid orderId, string productName, int quantity, DateTimeOffset createdAt)
         {

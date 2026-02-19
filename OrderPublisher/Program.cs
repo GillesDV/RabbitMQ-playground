@@ -15,7 +15,7 @@ using var channel = await connection.CreateChannelAsync();
 //infinite loop, will run until the user types "exit"
 for (; ; )
 {
-    Console.WriteLine("How many products did they order? (or type 'exit' to close program) ");
+    Console.WriteLine("How many products did they order? Negative will go straight to DLQ. Odd quantities will be test the retry-mechanism");
 
     string? input = Console.ReadLine();
 
